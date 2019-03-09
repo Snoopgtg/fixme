@@ -1,4 +1,4 @@
-package io;
+package ioi;
 
 public class RouterClient {
 }
