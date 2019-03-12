@@ -6,11 +6,11 @@ import java.util.concurrent.Executors;
 public class RouterMain {
 
     public static void main(String[] args) {
-        RouterOne routerOne = new RouterOne();
+        RouterMarket routerMarket = new RouterMarket();
         RouterTwo routerTwo = new RouterTwo();
 
         ExecutorService executorService = Executors.newFixedThreadPool(2);
-        executorService.submit(routerOne);
+        executorService.submit(routerMarket);
         executorService.submit(routerTwo);
     }
 }

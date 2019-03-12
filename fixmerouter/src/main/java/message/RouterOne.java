@@ -33,7 +33,7 @@ public class RouterOne implements Runnable{
                             + new String(buffer.array()).trim());
                     readval.get();
                     buffer.flip();
-                    String str= "I'm Router - Broker. Thank you!";
+                    String str= "I'm Router - Broker. Thank you!\n";
                     Future<Integer> writeVal = client.write(
                             ByteBuffer.wrap(str.getBytes()));
                     System.out.println("Writing back to client: "
