@@ -7,10 +7,10 @@ public class RouterMain {
 
     public static void main(String[] args) {
         RouterMarket routerMarket = new RouterMarket();
-        RouterTwo routerTwo = new RouterTwo();
+        RouterBroker routerBroker = new RouterBroker();
 
         ExecutorService executorService = Executors.newFixedThreadPool(2);
         executorService.submit(routerMarket);
-        executorService.submit(routerTwo);
+        executorService.submit(routerBroker);
     }
 }

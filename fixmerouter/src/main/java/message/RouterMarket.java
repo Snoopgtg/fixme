@@ -17,7 +17,7 @@ public class RouterMarket implements Runnable {
 
     }
 
-    private final Logger logger = LoggerFactory.getLogger("Router - Marker");
+    private final Logger logger = LoggerFactory.getLogger(RouterMarket.class.getSimpleName());
 
     @Override
     public void run()  {
@@ -37,7 +37,7 @@ public class RouterMarket implements Runnable {
             e.printStackTrace();
         }
         logger.info("side started. Accepting connections. Listening at {}", sAddr);
-        System.out.format("Server - Market is listening at %s%n", sAddr);
+        //System.out.format("Server - Market is listening at %s%n", sAddr);
         AttachmentMarket attach = new AttachmentMarket();
         attach.server = server;
         server.accept(attach, new ConnectionHandlerMarket());

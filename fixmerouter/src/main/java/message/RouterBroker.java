@@ -1,6 +1,9 @@
 
 package message;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -9,10 +12,13 @@ import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.nio.charset.Charset;
-public class RouterTwo implements Runnable {
-    public RouterTwo() {
+
+public class RouterBroker implements Runnable {
+    public RouterBroker() {
 
     }
+
+    private final Logger logger = LoggerFactory.getLogger(RouterBroker.class.getName());
     @Override
     public void run()  {
         AsynchronousServerSocketChannel server = null;//w w w  .  j  a  v  a2s .com
@@ -30,7 +36,8 @@ public class RouterTwo implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.format("Server - Broker is listening at %s%n", sAddr);
+        logger.info("side started. Accepting connections. Listening at {}", sAddr);
+        //System.out.format("Server - Broker is listening at %s%n", sAddr);
         Attachment attach = new Attachment();
         attach.server = server;
         server.accept(attach, new ConnectionHandler());
