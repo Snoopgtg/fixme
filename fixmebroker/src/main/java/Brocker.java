@@ -1,3 +1,6 @@
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
@@ -9,13 +12,21 @@ import java.nio.charset.Charset;
 import java.util.concurrent.Future;
 //from   w w  w  . j av a 2 s  .  c om
 public class Brocker {
+
+    private static final Logger logger = LoggerFactory.getLogger(Brocker.class.getSimpleName());
+
+    public static Logger getLogger() {
+        return logger;
+    }
+
     public static void main(String[] args) throws Exception {
         AsynchronousSocketChannel channel = AsynchronousSocketChannel.open();
         SocketAddress serverAddr = new InetSocketAddress("localhost", 5000);
         Future<Void> result = channel.connect(serverAddr);
         result.get();
-        System.out.println("Connected");
-        Attachmente attach = new Attachmente();
+        logger.info("Connected");
+        //System.out.println("Connected");
+        AttachmentBroker attach = new AttachmentBroker();
         attach.channel = channel;
         attach.buffer = ByteBuffer.allocate(2048);
         attach.isRead = false;
@@ -27,20 +38,20 @@ public class Brocker {
         attach.buffer.put(data);
         attach.buffer.flip();
 
-        ReadWriteHandlere readWriteHandler = new ReadWriteHandlere();
+        ReadWriteHandlerBroker readWriteHandler = new ReadWriteHandlerBroker();
         channel.write(attach.buffer, attach, readWriteHandler);
         attach.mainThread.join();
     }
 }
-class Attachment {
+class AttachmentBroker {
     AsynchronousSocketChannel channel;
     ByteBuffer buffer;
     Thread mainThread;
     boolean isRead;
 }
-class ReadWriteHandler implements CompletionHandler<Integer, Attachmente> {
+class ReadWriteHandlerBroker implements CompletionHandler<Integer, AttachmentBroker> {
     @Override
-    public void completed(Integer result, Attachmente attach) {
+    public void completed(Integer result, AttachmentBroker attach) {
         if (attach.isRead) {
             attach.buffer.flip();
             Charset cs = Charset.forName("UTF-8");
@@ -48,7 +59,8 @@ class ReadWriteHandler implements CompletionHandler<Integer, Attachmente> {
             byte bytes[] = new byte[limits];
             attach.buffer.get(bytes, 0, limits);
             String msg = new String(bytes, cs);
-            System.out.format("Server Responded: "+ msg);
+            Brocker.getLogger().info("Server Responded: "+ msg);
+//            System.out.format("Server Responded: "+ msg);
             try {
                 msg = this.getTextFromUser();
             } catch (Exception e) {
@@ -71,7 +83,7 @@ class ReadWriteHandler implements CompletionHandler<Integer, Attachmente> {
         }
     }
     @Override
-    public void failed(Throwable e, Attachmente attach) {
+    public void failed(Throwable e, AttachmentBroker attach) {
         e.printStackTrace();
     }
     private String getTextFromUser() throws Exception{

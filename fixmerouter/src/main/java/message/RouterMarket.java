@@ -1,3 +1,4 @@
+/*
 package message;
 
 import java.io.IOException;
@@ -41,7 +42,13 @@ public class RouterMarket implements Runnable {
         AttachmentMarket attach = new AttachmentMarket();
         attach.server = server;
         server.accept(attach, new ConnectionHandlerMarket());
-//        Thread.currentThread().join();
+       */
+/* try {
+            Thread.currentThread().join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*//*
+
     }
 }
 class AttachmentMarket {
@@ -57,8 +64,11 @@ class ConnectionHandlerMarket implements
     @Override
     public void completed(AsynchronousSocketChannel client, AttachmentMarket attach) {
         try {
+            final Logger log = LoggerFactory.getLogger(RouterMarket.class.getSimpleName());
+
             SocketAddress clientAddr = client.getRemoteAddress();
-            System.out.format("Router - Market : Accepted a  connection from  %s%n", clientAddr);
+            log.info("Accepted a  connection from  {}", clientAddr);
+            //System.out.format("Router - Market : Accepted a  connection from  %s%n", clientAddr);
             attach.server.accept(attach, this);
             ReadWriteHandlerMarket rwHandler = new ReadWriteHandlerMarket();
             AttachmentMarket newAttach = new AttachmentMarket();
@@ -75,7 +85,9 @@ class ConnectionHandlerMarket implements
 
     @Override
     public void failed(Throwable e, AttachmentMarket attach) {
-        System.out.println("Failed to accept a  connection.");
+        final Logger log = LoggerFactory.getLogger(RouterMarket.class.getSimpleName());
+        log.error("Failed to accept a connection.");
+        //System.out.println("Failed to accept a  connection.");
         e.printStackTrace();
     }
 }
@@ -83,11 +95,12 @@ class ConnectionHandlerMarket implements
 class ReadWriteHandlerMarket implements CompletionHandler<Integer, AttachmentMarket> {
     @Override
     public void completed(Integer result, AttachmentMarket attach) {
+        final Logger log = LoggerFactory.getLogger(RouterMarket.class.getSimpleName());
+
         if (result == -1) {
             try {
                 attach.client.close();
-                System.out.format("Stoppe   listening to the   client %s%n",
-                        attach.clientAddr);
+                log.info("Stop listening to the client {}", attach.clientAddr);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -101,8 +114,8 @@ class ReadWriteHandlerMarket implements CompletionHandler<Integer, AttachmentMar
             attach.buffer.get(bytes, 0, limits);
             Charset cs = Charset.forName("UTF-8");
             String msg = new String(bytes, cs);
-            System.out.format("Market at  %s  says: %s%n", attach.clientAddr,
-                    msg);
+            log.info("Market at {} says: {}", attach.clientAddr, msg);
+            //System.out.format("Market at  %s  says: %s%n", attach.clientAddr, msg);
             attach.isRead = false; // It is a write
             attach.buffer.rewind();
 
@@ -119,4 +132,4 @@ class ReadWriteHandlerMarket implements CompletionHandler<Integer, AttachmentMar
     public void failed(Throwable e, AttachmentMarket attach) {
         e.printStackTrace();
     }
-}
+}*/

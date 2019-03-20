@@ -1,3 +1,4 @@
+/*
 
 package message;
 
@@ -18,15 +19,19 @@ public class RouterBroker implements Runnable {
 
     }
 
-    private final Logger logger = LoggerFactory.getLogger(RouterBroker.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(RouterBroker.class.getName());
+
+    public static Logger getLogger() {
+        return logger;
+    }
+
     @Override
     public void run()  {
-        AsynchronousServerSocketChannel server = null;//w w w  .  j  a  v  a2s .com
+        AsynchronousServerSocketChannel server = null;
         try {
-            server = AsynchronousServerSocketChannel
-                    .open();
+            server = AsynchronousServerSocketChannel.open();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Messaging error with open server", e);
         }
         String host = "localhost";
         int port = 5000;
@@ -34,17 +39,23 @@ public class RouterBroker implements Runnable {
         try {
             server.bind(sAddr);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Messaging error with bind server", e);
         }
         logger.info("side started. Accepting connections. Listening at {}", sAddr);
         //System.out.format("Server - Broker is listening at %s%n", sAddr);
-        Attachment attach = new Attachment();
+        ConnectionAttachment attach = new ConnectionAttachment();
         attach.server = server;
-        server.accept(attach, new ConnectionHandler());
-//        Thread.currentThread().join();
+        server.accept(attach, new BrokerConnectionHandler());
+       */
+/* try {
+            Thread.currentThread().join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*//*
+
     }
 }
-class Attachment {
+class ConnectionAttachment {
     AsynchronousServerSocketChannel server;
     AsynchronousSocketChannel client;
     ByteBuffer buffer;
@@ -52,16 +63,18 @@ class Attachment {
     boolean isRead;
 }
 
-class ConnectionHandler implements
-        CompletionHandler<AsynchronousSocketChannel, Attachment> {
+class BrokerConnectionHandler implements
+        CompletionHandler<AsynchronousSocketChannel, ConnectionAttachment> {
     @Override
-    public void completed(AsynchronousSocketChannel client, Attachment attach) {
+    public void completed(AsynchronousSocketChannel client, ConnectionAttachment attach) {
         try {
             SocketAddress clientAddr = client.getRemoteAddress();
-            System.out.format("Server - Broker : Accepted a  connection from  %s%n", clientAddr);
+            RouterBroker.getLogger().info("Accepted a connection from", clientAddr);
+            //System.out.format("Server - Broker : Accepted a  connection from  %s%n", clientAddr);
             attach.server.accept(attach, this);
+            //TODO registerBroker(client);
             ReadWriteHandler rwHandler = new ReadWriteHandler();
-            Attachment newAttach = new Attachment();
+            ConnectionAttachment newAttach = new ConnectionAttachment();
             newAttach.server = attach.server;
             newAttach.client = client;
             newAttach.buffer = ByteBuffer.allocate(2048);
@@ -69,25 +82,24 @@ class ConnectionHandler implements
             newAttach.clientAddr = clientAddr;
             client.read(newAttach.buffer, newAttach, rwHandler);
         } catch (IOException e) {
-            e.printStackTrace();
+            RouterBroker.getLogger().error("Could not establish connection with client", e);
         }
     }
 
     @Override
-    public void failed(Throwable e, Attachment attach) {
-        System.out.println("Failed to accept a  connection.");
-        e.printStackTrace();
+    public void failed(Throwable e, ConnectionAttachment attach) {
+        RouterBroker.getLogger().info("Failed to accept a connection", e);
     }
 }
 
-class ReadWriteHandler implements CompletionHandler<Integer, Attachment> {
+class ReadWriteHandler implements CompletionHandler<Integer, ConnectionAttachment> {
     @Override
-    public void completed(Integer result, Attachment attach) {
+    public void completed(Integer result, ConnectionAttachment attach) {
         if (result == -1) {
             try {
                 attach.client.close();
-                System.out.format("Stopped   listening to the   client %s%n",
-                        attach.clientAddr);
+                RouterBroker.getLogger().info("Stopped listening to the client ", attach.clientAddr);
+//                System.out.format("Stopped   listening to the   client %s%n", attach.clientAddr);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -101,8 +113,8 @@ class ReadWriteHandler implements CompletionHandler<Integer, Attachment> {
             attach.buffer.get(bytes, 0, limits);
             Charset cs = Charset.forName("UTF-8");
             String msg = new String(bytes, cs);
-            System.out.format("Client at  %s  says: %s%n", attach.clientAddr,
-                    msg);
+            RouterBroker.getLogger().info("Client at {} says: {}", attach.clientAddr, msg);
+//            System.out.format("Client at  %s  says: %s%n", attach.clientAddr, msg);
             attach.isRead = false; // It is a write
             attach.buffer.rewind();
 
@@ -116,147 +128,7 @@ class ReadWriteHandler implements CompletionHandler<Integer, Attachment> {
     }
 
     @Override
-    public void failed(Throwable e, Attachment attach) {
-        e.printStackTrace();
+    public void failed(Throwable e, ConnectionAttachment attach) {
+        RouterBroker.getLogger().error("Messaging error", e);
     }
-}
-/*
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousServerSocketChannel;
-import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.channels.CompletionHandler;
-import java.nio.charset.Charset;
-public class Router {
-    public static void main(String[] args) throws Exception {
-        AsynchronousServerSocketChannel serverBroker = AsynchronousServerSocketChannel.open();
-        AsynchronousServerSocketChannel serverMarket = AsynchronousServerSocketChannel
-                .open();//w w w  .  j  a  v  a2s .co// m
-        String host = "localhost";
-        int portBroker = 5000;
-        int portMarket = 5001;
-        InetSocketAddress sAddrBroker = new InetSocketAddress(host, portBroker);
-        InetSocketAddress sAddrMarket = new InetSocketAddress(host, portMarket);
-        serverBroker.bind(sAddrBroker);
-        serverMarket.bind(sAddrMarket);
-        System.out.format("Server is listening at %s%n", sAddrBroker);
-        System.out.format("Server is listening at %s%n", sAddrMarket);
-
-        AttachmentBroker attachBroker = new AttachmentBroker();
-        AttachmentMarket attachMarket = new AttachmentMarket();
-        attachBroker.server = serverBroker;
-        attachMarket.server = serverMarket;
-        serverBroker.accept(attachBroker, new ConnectionHandler());
-        serverMarket.accept(attachMarket, new ConnectionHandler());
-        Thread.currentThread().join();
-    }
-}
-class AttachmentBroker {
-    AsynchronousServerSocketChannel server;
-    AsynchronousSocketChannel client;
-    ByteBuffer buffer;
-    SocketAddress clientAddr;
-    boolean isRead;
-}
-
-class Attachment {
-    AsynchronousServerSocketChannel server;
-    AsynchronousSocketChannel client;
-    ByteBuffer buffer;
-    SocketAddress clientAddr;
-    boolean isRead;
-}
-
-class ConnectionHandler implements
-        CompletionHandler<AsynchronousSocketChannel, Attachment> {
-    @Override
-    public void completed(AsynchronousSocketChannel client, AttachmentBroker attach) {
-        try {
-            SocketAddress clientAddr = client.getRemoteAddress();
-            System.out.format("Accepted a  connection from  %s%n", clientAddr);
-            attach.server.accept(attach, this);
-            ReadWriteHandler rwHandler = new ReadWriteHandler();
-            AttachmentBroker newAttach = new AttachmentBroker();
-            newAttach.server = attach.server;
-            newAttach.client = client;
-            newAttach.buffer = ByteBuffer.allocate(2048);
-            newAttach.isRead = true;
-            newAttach.clientAddr = clientAddr;
-            client.read(newAttach.buffer, newAttach, rwHandler);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-}
-
-    class ConnectionHandler implements
-            CompletionHandler<AsynchronousSocketChannel, Attachment> {
-        @Override
-        public void completed(AsynchronousSocketChannel client, AttachmentMarket attach) {
-            try {
-                SocketAddress clientAddr = client.getRemoteAddress();
-                System.out.format("Accepted a  connection from  %s%n", clientAddr);
-                attach.server.accept(attach, this);
-                ReadWriteHandler rwHandler = new ReadWriteHandler();
-                Attachment newAttach = new Attachment();
-                newAttach.server = attach.server;
-                newAttach.client = client;
-                newAttach.buffer = ByteBuffer.allocate(2048);
-                newAttach.isRead = true;
-                newAttach.clientAddr = clientAddr;
-                client.read(newAttach.buffer, newAttach, rwHandler);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-}
-
-        @Override
-    public void failed(Throwable e, Attachment attach) {
-        System.out.println("Failed to accept a  connection.");
-        e.printStackTrace();
-    }
-}
-
-class ReadWriteHandler implements CompletionHandler<Integer, Attachment> {
-    @Override
-    public void completed(Integer result, Attachment attach) {
-        if (result == -1) {
-            try {
-                attach.client.close();
-                System.out.format("Stopped   listening to the   client %s%n",
-                        attach.clientAddr);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            return;
-        }
-
-        if (attach.isRead) {
-            attach.buffer.flip();
-            int limits = attach.buffer.limit();
-            byte bytes[] = new byte[limits];
-            attach.buffer.get(bytes, 0, limits);
-            Charset cs = Charset.forName("UTF-8");
-            String msg = new String(bytes, cs);
-            System.out.format("Client at  %s  says: %s%n", attach.clientAddr,
-                    msg);
-            attach.isRead = false; // It is a write
-            attach.buffer.rewind();
-
-        } else {
-            // Write to the client
-            attach.client.write(attach.buffer, attach, this);
-            attach.isRead = true;
-            attach.buffer.clear();
-            attach.client.read(attach.buffer, attach, this);
-        }
-    }
-
-    @Override
-    public void failed(Throwable e, Attachment attach) {
-        e.printStackTrace();
-    }
-}}*/
+}*/
