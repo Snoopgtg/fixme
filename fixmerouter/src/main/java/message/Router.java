@@ -6,20 +6,29 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class RouterNio {
+import java.lang.invoke.MethodHandles;
 
-    private final int portForBrocker;
+public class Router {
+
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    public static Logger getLogger() {
+        return logger;
+    }
+    private final int portForBroker;
     private final int portForMarket;
 
     public static void main(String[] args) throws InterruptedException {
-        new RouterNio(5000, 5001).run();
+        new Router(5000, 5001).run();
 
     }
 
 
-    public RouterNio(int portForBrocker, int portForMarket) {
-        this.portForBrocker = portForBrocker;
+    public Router(int portForBroker, int portForMarket) {
+        this.portForBroker = portForBroker;
         this.portForMarket = portForMarket;
     }
 
@@ -33,10 +42,10 @@ public class RouterNio {
                     .group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new RouterNioInitializer());
-            System.out.println("The server at port " + portForBrocker + " is ready.");
-            ChannelFuture futureBrocker = bootstrap.bind(portForBrocker);
-            System.out.println("The server at port " + portForMarket + " is ready.");
+            ChannelFuture futureBrocker = bootstrap.bind(portForBroker);
+            logger.info("- Broker side started. Accepting connections. Listening at {}", portForBroker);
             ChannelFuture futureMarket = bootstrap.bind(portForMarket);
+            logger.info("- Market side started. Accepting connections. Listening at {}", portForMarket);
             futureBrocker.sync().channel().closeFuture().sync();
             futureMarket.sync().channel().closeFuture().sync();
         }
