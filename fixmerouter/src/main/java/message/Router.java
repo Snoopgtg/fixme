@@ -1,6 +1,6 @@
 package message;
 
-
+//TODO Use the java executor framework for message handling.
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Router {
 
@@ -22,8 +24,14 @@ public class Router {
     private final int portForMarket;
 
     public static void main(String[] args) throws InterruptedException {
-        new Router(5000, 5001).run();
 
+        /*String ttt = "[/127.0.0.1:57220] 8=FIX.4.0␁35=A␁49=SERVER␁56=CLIENT␁34=177␁52=20090107-18:15:16␁98=0␁108=30␁10=062␁";
+        ttt = ttt.replace('␁', '|');
+        ttt = ttt.substring(ttt.indexOf("35"));
+        ttt = ttt.substring(0, ttt.lastIndexOf("10"));
+        byte[] b = ttt.getBytes();
+        System.out.println(ttt.getBytes().length);*/
+        new Router(5000, 5001).run();
     }
 
 

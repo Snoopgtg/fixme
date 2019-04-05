@@ -6,6 +6,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import nio.RouterClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,8 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
         return logger;
     }
 
+    private static int brokerIndex;
+    private static int marketIndex;
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final ChannelGroup BrokerChannels = new DefaultChannelGroup("brokers");
@@ -31,18 +35,20 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
             for (Channel channel : BrokerChannels) {
                 channel.write("Server - " + incoming.remoteAddress() + " has joined!\n");
             }
+            brokerIndex++;
             BrokerChannels.add(ctx.channel());
+            registerBroker(incoming);
             getLogger().info("add Broker to broker group");
 
         }
         else {
             for (Channel channel : MarketChannels) {
                 channel.write("Server - " + incoming.remoteAddress() + " has joined!\n");
-                channel.write("Server a\n");
             }
+            marketIndex++;
             MarketChannels.add(ctx.channel());
+            registerMarket(incoming);
             getLogger().info("add Market to market group");
-            System.out.println("id = " + ctx.channel().id());
 
         }
     }
@@ -76,6 +82,21 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
         }
 
     }
+
+    private void registerBroker(Channel incoming) {
+
+        incoming.write(Integer.toString(brokerIndex) + "\n");
+        incoming.flush();
+        getLogger().info("Router assigned Broker with ID = {}", brokerIndex);
+    }
+
+    private void registerMarket(Channel incoming) {
+
+        incoming.write(Integer.toString(marketIndex) + "\n");
+        incoming.flush();
+        getLogger().info("Router assigned Market with ID = {}", marketIndex);
+    }
+
     private static boolean checkIncomingClient(ChannelHandlerContext ctx) {
 
         Channel incoming = ctx.channel();
