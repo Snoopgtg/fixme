@@ -13,9 +13,10 @@ public class ExecutedMessage {
     private OrderQty orderQty;
     private CumQty cumQty;
     private AvgPx avgPx;
-    private StandardMessageTrailer standardMessageTrailer;
+    private CheckSum checkSum = new CheckSum();
 
-    public ExecutedMessage(StandardMessageHeader standardMessageHeader, OrderID orderID, ExecID execID, ExecTransType execTransType, OrdStatus ordStatus, Symbol symbol, Side side, OrderQty orderQty, CumQty cumQty, AvgPx avgPx, StandardMessageTrailer standardMessageTrailer) {
+    public ExecutedMessage(StandardMessageHeader standardMessageHeader, OrderID orderID, ExecID execID, ExecTransType
+            execTransType, OrdStatus ordStatus, Symbol symbol, Side side, OrderQty orderQty, CumQty cumQty, AvgPx avgPx) {
         this.standardMessageHeader = standardMessageHeader;
         this.orderID = orderID;
         this.execID = execID;
@@ -26,6 +27,15 @@ public class ExecutedMessage {
         this.orderQty = orderQty;
         this.cumQty = cumQty;
         this.avgPx = avgPx;
-        this.standardMessageTrailer = standardMessageTrailer;
+        int lengtInByteOfMessage = this.standardMessageHeader.getBodyLength().calculateLengthOfBytesInMessage(this.getMessage());
+        this.standardMessageHeader.getBodyLength().setValue(lengtInByteOfMessage);
+        String resultOfcheckSum = this.checkSum.calculateCheckSumInMessage(this.getMessage());
+        this.checkSum.setValue(resultOfcheckSum);
+    }
+
+    public String getMessage() {
+        return standardMessageHeader.toString() + orderID.toString() + execID.toString() + execTransType.toString()
+                + ordStatus.toString() + symbol.toString() + side.toString() + orderQty.toString() + cumQty.toString()
+                + avgPx.toString() + checkSum.toString();
     }
 }

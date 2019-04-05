@@ -23,14 +23,14 @@ public class BodyLength extends MessageParent{
     public int calculateLengthOfBytesInMessage(String message) {
 
 //      SOH have been replaced by'|'
-        message = message.replace('␁', '|');
+        String replaceString = message.replace('␁', '|');
 
 //      count starting at tag 35 (included)
-        message = message.substring(message.indexOf("35"));
+        replaceString = replaceString.substring(replaceString.indexOf("35"));
 
 //      tag 10 (excluded)
-        message = message.substring(0, message.lastIndexOf("10"));
-        return message.getBytes().length;
+        replaceString = replaceString.substring(0, replaceString.lastIndexOf("10"));
+        return replaceString.getBytes().length;
     }
 }
 

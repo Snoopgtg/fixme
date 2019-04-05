@@ -1,18 +1,31 @@
 package MessageBody;
 
 public class CheckSum extends MessageParent{
-    private int length;
 
-    public CheckSum(Integer value) {
+    public CheckSum() {
 
-        super(value, 10);
+        super(0, 10);
     }
 
-    @Override
-    public String toString() {
-        return this.tag.toString() + "=" + this.value.toString();
-    }
+    public String calculateCheckSumInMessage(String message) {
 
-    //TODO checkSumCounter(); checkSum of all message
+//      SOH have been replaced by'|'
+        String replaceString = message.replace('␁', '|');
+
+//      count starting at tag 35 (included)
+        replaceString = replaceString.substring(replaceString.indexOf("35"));
+
+//      tag 10 (excluded)
+        replaceString = replaceString.substring(0, replaceString.lastIndexOf("10"));
+        byte[] bytes = replaceString.getBytes();
+        long sumBytes = 0;
+        for (byte b : bytes) {
+            sumBytes += b;
+        }
+        sumBytes = sumBytes % 256;
+        return String.format("%03d", sumBytes);
+
+    }
+    //TODO check correction work
 }
 

@@ -17,7 +17,7 @@ public class MessageFactory {
             default : throw new Error(type + " is not valid aircraft");
         }*//*
     }*/
-    public static SellMessage createSellMessage(String id) {
+    public static SellMessage createSellMessage(String id) {//String id - SenderCompID
 
         StandardMessageHeader standardMessageHeader = new StandardMessageHeader(new BeginString("FIX.4.0"),
                 new MsgType('D'), new SenderCompID(id), new MsgSeqNum(), new SendingTime());
@@ -27,6 +27,7 @@ public class MessageFactory {
         OrdType ordType = new OrdType();
         OrderQty orderQty = new OrderQty();
         Price price = new Price();
+
         return new SellMessage(standardMessageHeader, clOrdID, symbol,side, ordType, orderQty, price);
     }
 
@@ -41,5 +42,21 @@ public class MessageFactory {
         OrderQty orderQty = new OrderQty();
         Price price = new Price();
         return new BuyMessage(standardMessageHeader, clOrdID, symbol, side, ordType, orderQty, price);
+    }
+
+    public static ExecutedMessage createExecutedMessage(String id, String recievdMessage) {
+        StandardMessageHeader standardMessageHeader = new StandardMessageHeader(new BeginString("FIX.4.0"),
+                new MsgType('8'), new SenderCompID(id), new MsgSeqNum(), new SendingTime());
+
+        OrderQty orderQty = new OrderQty();
+        ExecID execID = new ExecID();
+        ExecTransType execTransType = new ExecTransType('2');
+        OrdStatus ordStatus = new OrdStatus('B');
+        Symbol symbol = new Symbol();
+        String s = symbol.getValueFromString(recievdMessage);
+        symbol.setValue(s);
+
+
+        return new ExecutedMessage(standardMessageHeader, orderQty, execID, execTransType, execTransType, symbol, );
     }
 }
