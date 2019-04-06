@@ -20,7 +20,7 @@ public class BodyLength extends MessageParent{
     */
 
 
-    public int calculateLengthOfBytesInMessage(String message) {
+    public void calculateAndSetLengthOfBytesInMessage(String message) {
 
 //      SOH have been replaced by'|'
         String replaceString = message.replace('␁', '|');
@@ -30,7 +30,7 @@ public class BodyLength extends MessageParent{
 
 //      tag 10 (excluded)
         replaceString = replaceString.substring(0, replaceString.lastIndexOf("10"));
-        return replaceString.getBytes().length;
+        super.setValue(replaceString.getBytes().length);
     }
 }
 

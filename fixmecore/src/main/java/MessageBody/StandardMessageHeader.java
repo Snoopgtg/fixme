@@ -7,7 +7,7 @@ public class StandardMessageHeader implements Message {
     private BodyLength bodyLength = new BodyLength(); //Valid values: '0' ... '9999'
     private MsgType msgType;
     private SenderCompID senderCompID;
-//    private TargetCompID targetCompID;
+//    private TargetCompID targetCompID; //router will send target with sender
     private MsgSeqNum msgSeqNum;
     private SendingTime sendingTime;
 

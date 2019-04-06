@@ -27,10 +27,8 @@ public class ExecutedMessage {
         this.orderQty = orderQty;
         this.cumQty = cumQty;
         this.avgPx = avgPx;
-        int lengtInByteOfMessage = this.standardMessageHeader.getBodyLength().calculateLengthOfBytesInMessage(this.getMessage());
-        this.standardMessageHeader.getBodyLength().setValue(lengtInByteOfMessage);
-        String resultOfcheckSum = this.checkSum.calculateCheckSumInMessage(this.getMessage());
-        this.checkSum.setValue(resultOfcheckSum);
+        this.standardMessageHeader.getBodyLength().calculateAndSetLengthOfBytesInMessage(this.getMessage());
+        this.checkSum.calculateAndSetCheckSumInMessage(this.getMessage());
     }
 
     public String getMessage() {

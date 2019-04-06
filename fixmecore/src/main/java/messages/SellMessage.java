@@ -21,10 +21,8 @@ public class SellMessage {
         this.ordType = ordType;
         this.orderQty = orderQty;
         this.price = price;
-        int lengtInByteOfMessage = this.standardMessageHeader.getBodyLength().calculateLengthOfBytesInMessage(this.getMessage());
-        this.standardMessageHeader.getBodyLength().setValue(lengtInByteOfMessage);
-        String resultOfcheckSum = this.checkSum.calculateCheckSumInMessage(this.getMessage());
-        this.checkSum.setValue(resultOfcheckSum);
+        this.standardMessageHeader.getBodyLength().calculateAndSetLengthOfBytesInMessage(this.getMessage());
+        this.checkSum.calculateAndSetCheckSumInMessage(this.getMessage());
     }
 
     public String getMessage() {

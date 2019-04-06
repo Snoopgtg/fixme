@@ -6,5 +6,8 @@ public class Side extends MessageParent{
 
         super(value, 54);
     }
+    public Side() {
+        super(54);
+    }
 }
 

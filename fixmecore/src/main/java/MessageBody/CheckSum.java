@@ -7,7 +7,7 @@ public class CheckSum extends MessageParent{
         super(0, 10);
     }
 
-    public String calculateCheckSumInMessage(String message) {
+    public void calculateAndSetCheckSumInMessage(String message) {
 
 //      SOH have been replaced by'|'
         String replaceString = message.replace('␁', '|');
@@ -23,7 +23,7 @@ public class CheckSum extends MessageParent{
             sumBytes += b;
         }
         sumBytes = sumBytes % 256;
-        return String.format("%03d", sumBytes);
+        super.setValue(String.format("%03d", sumBytes));
 
     }
     //TODO check correction work

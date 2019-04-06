@@ -6,5 +6,10 @@ public class CumQty extends MessageParent{
 
         super(value, 14);
     }
+    public CumQty() {
+        super(14);
+    }
 }
 
+// якщо були закази до цього з такими акціями то тут відображається сума
+// сума попередніх OrderQty і теперішнього

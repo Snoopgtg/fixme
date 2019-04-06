@@ -2,8 +2,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import messages.MessageFactory;
 import messages.SellMessage;
-import singlton.MessageSinglton;
-
 public class MarketNioHandler extends ChannelInboundMessageHandlerAdapter<String> {
 
     private SellMessage sellMessage;
