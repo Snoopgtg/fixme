@@ -1,22 +1,33 @@
 package validator;
 
 import MessageBody.CheckSum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 
 public class CheckSumValidate extends ParentValidator {
 
-    private String recievdMessage;
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private String receivedMessage;
     private CheckSum checkSum;
 
-    public CheckSumValidate(String recievdMessage) {
-        this.recievdMessage = recievdMessage;
+    public CheckSumValidate(String receivedMessage) {
+        this.receivedMessage = receivedMessage;
+        this.checkSum = new CheckSum();
     }
 
     @Override
-    public boolean check(String recievdMessage) {
+    public boolean check(String receivedMessage) {
 
-        checkSum.getAndSetValueFromString(recievdMessage);
-        if
-
-        return checkNext(recievdMessage);
+        this.checkSum.calculateAndSetCheckSumInMessage(receivedMessage);
+        String res = this.checkSum.getValue().toString();
+        this.checkSum.getAndSetValueFromString(receivedMessage);
+        if(!res.equals(this.checkSum.getValue())) {
+            logger.error("Doesn't validate {} with {}", res, this.checkSum.getValue());
+            return false;
+        }
+        logger.info("{} - check sum is accepted", res);
+        return checkNext(receivedMessage);
     }
 }
