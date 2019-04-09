@@ -2,23 +2,27 @@ package validator;
 
 import MessageBody.SenderCompID;
 import MessageBody.TargetCompID;
+import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DestinationValidator extends ParentValidator {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private ArrayList<Integer> listOfDestination;
-    private ArrayList<Integer> listOfSenders;
+    private Map<Integer, Channel> mapOfTargets;
+    private Map<Integer, Channel> mapOfSenders;
+
     private SenderCompID senderCompID;
     private TargetCompID targetCompID;
 
-    public DestinationValidator(ArrayList<Integer> listOfDestination) {
+    public DestinationValidator(Map<Integer, Channel> mapOfSenders, Map<Integer, Channel> mapOfTargets) {
 
-        this.listOfDestination = listOfDestination;
+        this.mapOfTargets = mapOfTargets;
+        this.mapOfSenders = mapOfSenders;
         this.senderCompID = new SenderCompID();
         this.targetCompID = new TargetCompID();
     }
@@ -26,25 +30,20 @@ public class DestinationValidator extends ParentValidator {
     @Override
     public boolean check(String receivedMessage) {
 
-        //буде проблема з айді, мабуть там буду ще літери
+        //буде проблема з айді, мабуть там будуть ще літери
         senderCompID.getAndSetValueFromString(receivedMessage);
-        Integer des = (Integer) senderCompID.getValue();
-        for (Integer elem: listOfDestination){
-            if (!des.equals(elem)) {
-                logger.error("{} - this is destination doesn't exist\n", des);
-                return false;
-            }
+        Integer sender = (Integer) senderCompID.getValue();
+        if (!mapOfSenders.containsKey(sender)) {
+            logger.error("{} - this is destination doesn't exist\n", sender);
+            return false;
         }
-
         targetCompID.getAndSetValueFromString(receivedMessage);
-        Integer sender = (Integer) targetCompID.getValue();
-        for (Integer elem: listOfSenders){
-            if (!sender.equals(elem)) {
-                logger.error("{} - this is sender doesn't exist\n", sender);
-                return false;
-            }
+        Integer target = (Integer) targetCompID.getValue();
+        if (!mapOfTargets.containsKey(target)) {
+            logger.error("{} - this is sender doesn't exist\n", sender);
+            return false;
         }
-        logger.info("senderCompID - {} and targetCompID - {} are accepted\n", sender, des);
+        logger.info("senderCompID - {} and targetCompID - {} are accepted\n", sender, target);
         return true;
     }
 }

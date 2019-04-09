@@ -17,10 +17,10 @@ public abstract class MessageParent<T> {
         return value;
     }
 
-    public void getAndSetValueFromString(String recievedMessage) {
+    public void getAndSetValueFromString(String receivedMessage) {
 
         String tag = String.valueOf(this.tag);
-        String replaceSOH = recievedMessage.replace('␁', '|');
+        String replaceSOH = receivedMessage.replace('␁', '|');
         replaceSOH = replaceSOH.substring(replaceSOH.indexOf(tag));
         replaceSOH = replaceSOH.substring(0, replaceSOH.indexOf('|'));
         setValue((T) replaceSOH.substring(replaceSOH.indexOf('=') + 1));

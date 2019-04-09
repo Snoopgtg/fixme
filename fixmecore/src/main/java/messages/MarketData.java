@@ -14,7 +14,6 @@ public class MarketData {
 
     private Symbol symbol = new Symbol();
     private OrderQty orderQty = new OrderQty();
-    private int marketID;
     private Price price = new Price();
 
     public boolean isOrderQtyAndCalculated(OrderQty orderQty) {
@@ -60,8 +59,8 @@ public class MarketData {
 
     }
 
-    public MarketData(int marketID) {
-        this.marketID = marketID;
+    public MarketData() {
+
     }
 
     public Symbol getSymbol() {
@@ -78,14 +77,6 @@ public class MarketData {
 
     public void setOrderQty(OrderQty orderQty) {
         this.orderQty = orderQty;
-    }
-
-    public int getMarketID() {
-        return marketID;
-    }
-
-    public void setMarketID(int marketID) {
-        this.marketID = marketID;
     }
 
     public Price getPrice() {

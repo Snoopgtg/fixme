@@ -3,6 +3,7 @@ import java.io.InputStreamReader;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -29,16 +30,19 @@ public class BrockerNio {
             Bootstrap bootstrap = new Bootstrap()
                     .group(group)
                     .channel(NioSocketChannel.class)
-                    .handler(new ChatClientInitializer());
+                    .handler(new BrokerInitializer());
 
-            Channel channel = bootstrap.connect(host, port).sync().channel();
+            ChannelFuture futureBroker = bootstrap.connect(host, port);
+
+            //Channel channel = bootstrap.connect(host, port).sync().channel();
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+            futureBroker.sync().channel().closeFuture().sync();
 
-            while (true) {
-                channel.write(in.readLine() + " waiting for masseges \r\n");
-                channel.flush();
+            /*while (true) {
+                *//*channel.write(in.readLine() + " waiting for masseges \r\n");
+                channel.flush();*//*
 
-            }
+            }*/
         }
         finally {
             group.shutdownGracefully();

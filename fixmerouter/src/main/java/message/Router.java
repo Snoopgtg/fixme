@@ -9,31 +9,37 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import validator.ParentValidator;
 
 import java.lang.invoke.MethodHandles;
 
 public class Router {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());// TODO two loggers?
 
     public static Logger getLogger() {
         return logger;
-    }
+    } //TODO two loggers?
     private final int portForBroker;
     private final int portForMarket;
 
     public static void main(String[] args) throws InterruptedException {
 
+        String ttt = "[/127.0.0.1:33758] id01";
 //        String ttt = "[/127.0.0.1:33758] 8=FIX.4.0␁9=89␁35=D␁49=2␁56=0␁52=20190405-18:06:12.468␁11=ATOMNOCCC7623␁55=APPL␁54=2␁40=2␁38=4␁44=85.62␁10=092␁ waiting for masseges";
-        String ttt = "8=FIX.4.2|9=65|35=A|49=SERVER|56=CLIENT|34=177|52=20090107-18:15:16|98=0|108=30|10=062|";
-        String tag = String.valueOf(49) + "=";
-        //ttt = ttt.replace('␁', '|');
+        String i = ttt.substring(ttt.indexOf("id") + 2);
+        System.out.println("comare - " + i);
+
+        /*String ttt = "[/127.0.0.1:33758] 8=FIX.4.0␁9=89␁35=D␁49=2␁56=0␁52=20190405-18:06:12.468␁11=ATOMNOCCC7623␁55=APPL␁54=2␁40=2␁38=4␁44=85.62␁10=092␁ waiting for masseges";
+//        String ttt = "8=FIX.4.2|9=65|35=A|49=SERVER|56=CLIENT|34=177|52=20090107-18:15:16|98=0|108=30|10=062|";
+        String tag = String.valueOf(49);
+        ttt = ttt.replace('␁', '|');
         String rrr = ttt.substring(ttt.indexOf(tag));
-        System.out.println(rrr);
+        //System.out.println(rrr);
         rrr = rrr.substring(0, rrr.indexOf('|'));
         rrr = rrr.substring(rrr.indexOf('=') + 1);
 
-        System.out.println(rrr);
+        System.out.println(rrr);*/
 
 
 

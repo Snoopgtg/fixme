@@ -19,7 +19,7 @@ public class MessageFactory {
     public static SellMessage createSellMessage(String senderCompID) {//String id - SenderCompID
 
         StandardMessageHeader standardMessageHeader = new StandardMessageHeader(new BeginString("FIX.4.0"),
-                new MsgType('D'), new SenderCompID(senderCompID), new MsgSeqNum(), new SendingTime());
+                new MsgType('D'), new SenderCompID(senderCompID), new TargetCompID(0), new MsgSeqNum(), new SendingTime());
         ClOrdID clOrdID = new ClOrdID();
         Symbol symbol = new Symbol();
         Side side = new Side('2');
@@ -33,7 +33,7 @@ public class MessageFactory {
     public static BuyMessage createBuyMessage(String senderCompID) {
 
         StandardMessageHeader standardMessageHeader = new StandardMessageHeader(new BeginString("FIX.4.0"),
-                new MsgType('D'), new SenderCompID(senderCompID), new MsgSeqNum(), new SendingTime());
+                new MsgType('D'), new SenderCompID(senderCompID), new TargetCompID(0), new MsgSeqNum(), new SendingTime());
         ClOrdID clOrdID = new ClOrdID();
         Symbol symbol = new Symbol();
         Side side = new Side('1');
@@ -43,24 +43,24 @@ public class MessageFactory {
         return new BuyMessage(standardMessageHeader, clOrdID, symbol, side, ordType, orderQty, price);
     }
 
-    public static ExecutedMessage createExecutedMessage(String senderCompID, String recievdMessage) {
+    public static ExecutedMessage createExecutedMessage(String senderCompID, String receivedMessage) {
         StandardMessageHeader standardMessageHeader = new StandardMessageHeader(new BeginString("FIX.4.0"),
-                new MsgType('8'), new SenderCompID(senderCompID), new MsgSeqNum(), new SendingTime());
+                new MsgType('8'), new SenderCompID(senderCompID), new TargetCompID(0), new MsgSeqNum(), new SendingTime());
 
         OrderID orderID = new OrderID();
         ExecID execID = new ExecID();
         ExecTransType execTransType = new ExecTransType('2');
         OrdStatus ordStatus = new OrdStatus('B');
         Symbol symbol = new Symbol();
-        symbol.getAndSetValueFromString(recievdMessage);
+        symbol.getAndSetValueFromString(receivedMessage);
         Side side = new Side();
-        side.getAndSetValueFromString(recievdMessage);
+        side.getAndSetValueFromString(receivedMessage);
         OrderQty orderQty = new OrderQty();
-        orderQty.getAndSetValueFromString(recievdMessage);
+        orderQty.getAndSetValueFromString(receivedMessage);
         CumQty cumQty = new CumQty();
         cumQty.setValue(orderQty.getValue()); // same that orderQty
         AvgPx avgPx = new AvgPx();
-        avgPx.getAndSetValueFromString(recievdMessage);
+        avgPx.getAndSetValueFromString(receivedMessage);
 
 
 
@@ -95,7 +95,7 @@ public class MessageFactory {
 
     public static RejectedMessage createRejectedMessage(String senderCompID) {
         StandardMessageHeader standardMessageHeader = new StandardMessageHeader(new BeginString("FIX.4.0"),
-                new MsgType('3'), new SenderCompID(senderCompID), new MsgSeqNum(), new SendingTime());
+                new MsgType('3'), new SenderCompID(senderCompID), new TargetCompID(0), new MsgSeqNum(), new SendingTime());
 
         RefSeqNum refSeqNum = new RefSeqNum();
 
