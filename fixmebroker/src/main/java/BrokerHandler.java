@@ -14,6 +14,7 @@ public class BrokerHandler extends ChannelInboundMessageHandlerAdapter<String> {
     private SellMessage sellMessage;
     private BuyMessage buyMessage;
     private String brokerId;
+    private String targetId;
     //TODO formatting to 6 digits ID
     private String stringFromRouter;
     ChannelHandlerContext ctx;
@@ -33,14 +34,14 @@ public class BrokerHandler extends ChannelInboundMessageHandlerAdapter<String> {
 
         Random random = new Random();
         if (random.nextBoolean()) {
-            sellMessage = MessageFactory.createSellMessage(brokerId);
+            sellMessage = MessageFactory.createSellMessage(brokerId, Integer.parseInt(targetId));
             ctx.channel().write(sellMessage.getMessage() + "\n");
             ctx.channel().flush();
 
             logger.info("Sell message is generated : " + sellMessage.getMessage());
         }
         else {
-            buyMessage = MessageFactory.createBuyMessage(brokerId);
+            buyMessage = MessageFactory.createBuyMessage(brokerId, Integer.parseInt(targetId));
             ctx.channel().write(buyMessage.getMessage() + "\n");
             ctx.channel().flush();
             logger.info("Buy message is generated : " + buyMessage.getMessage());
@@ -49,8 +50,9 @@ public class BrokerHandler extends ChannelInboundMessageHandlerAdapter<String> {
 
     private void handler() {
         if (stringFromRouter.contains("id")) {
-            this.brokerId = stringFromRouter.substring(stringFromRouter.indexOf("id") + 2);
+            this.brokerId = stringFromRouter.substring(stringFromRouter.indexOf("id") + 2, stringFromRouter.indexOf(" "));
             logger.info("Broker received id - {} from Router", this.brokerId);
+            targetId = stringFromRouter.substring(stringFromRouter.indexOf("tar") + 3);
         }
         else {
             logger.info("Broker received message: {}", this.stringFromRouter);

@@ -16,10 +16,10 @@ public class MessageFactory {
             default : throw new Error(type + " is not valid aircraft");
         }*//*
     }*/
-    public static SellMessage createSellMessage(String senderCompID) {//String id - SenderCompID
+    public static SellMessage createSellMessage(String senderCompID, Integer targetCompID) {//String id - SenderCompID
 
         StandardMessageHeader standardMessageHeader = new StandardMessageHeader(new BeginString("FIX.4.0"),
-                new MsgType('D'), new SenderCompID(senderCompID), new TargetCompID(0), new MsgSeqNum(), new SendingTime());
+                new MsgType('D'), new SenderCompID(senderCompID), new TargetCompID(targetCompID), new MsgSeqNum(), new SendingTime());
         ClOrdID clOrdID = new ClOrdID();
         Symbol symbol = new Symbol();
         Side side = new Side('2');
@@ -30,10 +30,10 @@ public class MessageFactory {
         return new SellMessage(standardMessageHeader, clOrdID, symbol,side, ordType, orderQty, price);
     }
 
-    public static BuyMessage createBuyMessage(String senderCompID) {
+    public static BuyMessage createBuyMessage(String senderCompID, Integer targetCompID) {
 
         StandardMessageHeader standardMessageHeader = new StandardMessageHeader(new BeginString("FIX.4.0"),
-                new MsgType('D'), new SenderCompID(senderCompID), new TargetCompID(0), new MsgSeqNum(), new SendingTime());
+                new MsgType('D'), new SenderCompID(senderCompID), new TargetCompID(targetCompID), new MsgSeqNum(), new SendingTime());
         ClOrdID clOrdID = new ClOrdID();
         Symbol symbol = new Symbol();
         Side side = new Side('1');
@@ -43,9 +43,9 @@ public class MessageFactory {
         return new BuyMessage(standardMessageHeader, clOrdID, symbol, side, ordType, orderQty, price);
     }
 
-    public static ExecutedMessage createExecutedMessage(String senderCompID, String receivedMessage) {
+    public static ExecutedMessage createExecutedMessage(String senderCompID, Integer targetCompID, String receivedMessage) {
         StandardMessageHeader standardMessageHeader = new StandardMessageHeader(new BeginString("FIX.4.0"),
-                new MsgType('8'), new SenderCompID(senderCompID), new TargetCompID(0), new MsgSeqNum(), new SendingTime());
+                new MsgType('8'), new SenderCompID(senderCompID), new TargetCompID(targetCompID), new MsgSeqNum(), new SendingTime());
 
         OrderID orderID = new OrderID();
         ExecID execID = new ExecID();
@@ -68,34 +68,9 @@ public class MessageFactory {
                 cumQty, avgPx);
     }
 
-    /*public static AcceptedMessage createAcceptedMessage(String senderCompID, String recievdMessage) {
+    public static RejectedMessage createRejectedMessage(String senderCompID, Integer targetCompID) {
         StandardMessageHeader standardMessageHeader = new StandardMessageHeader(new BeginString("FIX.4.0"),
-                new MsgType('8'), new SenderCompID(senderCompID), new MsgSeqNum(), new SendingTime());
-
-        OrderID orderID = new OrderID();
-        ExecID execID = new ExecID();
-        ExecTransType execTransType = new ExecTransType('2');
-        OrdStatus ordStatus = new OrdStatus('B');
-        Symbol symbol = new Symbol();
-        symbol.getAndSetValueFromString(recievdMessage);
-        Side side = new Side();
-        side.getAndSetValueFromString(recievdMessage);
-        OrderQty orderQty = new OrderQty();
-        orderQty.getAndSetValueFromString(recievdMessage);
-        CumQty cumQty = new CumQty();
-        cumQty.setValue(orderQty.getValue()); // same that orderQty
-        AvgPx avgPx = new AvgPx();
-        avgPx.getAndSetValueFromString(recievdMessage);
-
-
-
-        return new AcceptedMessage(standardMessageHeader, orderID, execID, execTransType, ordStatus, symbol, side, orderQty,
-                cumQty, avgPx);
-    }*/
-
-    public static RejectedMessage createRejectedMessage(String senderCompID) {
-        StandardMessageHeader standardMessageHeader = new StandardMessageHeader(new BeginString("FIX.4.0"),
-                new MsgType('3'), new SenderCompID(senderCompID), new TargetCompID(0), new MsgSeqNum(), new SendingTime());
+                new MsgType('3'), new SenderCompID(senderCompID), new TargetCompID(targetCompID), new MsgSeqNum(), new SendingTime());
 
         RefSeqNum refSeqNum = new RefSeqNum();
 

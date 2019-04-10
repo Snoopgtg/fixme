@@ -7,8 +7,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import nio.RouterClient;
+import nio.ListOfClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import validator.CheckSumValidate;
@@ -17,8 +16,6 @@ import validator.ParentValidator;
 
 import java.lang.invoke.MethodHandles;
 import java.net.InetSocketAddress;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String> {
 
@@ -56,8 +53,6 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
             }
             MarketChannels.add(ctx.channel());
             registerMarket(incoming);
-            System.out.println("TARGET = " + ListOfClients.getInstance().getMarketMap().size());
-
             getLogger().info("add Market to market group");
 
         }
@@ -79,14 +74,15 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
         this.parentValidator = new CheckSumValidate(msg);
         //Thread.currentThread().join();
         targetCompID.getAndSetValueFromString(msg);
+        Integer targetValue = Integer.parseInt(targetCompID.getValue().toString());
         Channel incoming = arg0.channel();
         logger.info("Received message {}", msg);
         if (RouterNioHandler.checkIncomingClient(arg0)) {
             parentValidator.linkWith(new DestinationValidator(ListOfClients.getInstance().getBrokerMap(), ListOfClients.getInstance().getMarketMap()));
+//            Object find = targetCompID.getValue().;
+            if (ListOfClients.getInstance().getMarketMap().containsKey(targetValue)) {
 
-            if (ListOfClients.getInstance().getMarketMap().containsKey(0)) {
-
-                Channel channel = ListOfClients.getInstance().getMarketMap().get(0);
+                Channel channel = ListOfClients.getInstance().getMarketMap().get(targetValue);
                 channel.write("[" + incoming.remoteAddress() + "] " + msg + "\n");
                 channel.flush();
             /*for (Channel chanel : BrokerChannels) {
@@ -103,11 +99,12 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
 
         }
         else {
-            parentValidator.linkWith(new DestinationValidator(ListOfClients.getInstance().getMarketMap(), ListOfClients.getInstance().getBrokerMap()));//TODO return bool
-            Channel channel = ListOfClients.getInstance().getBrokerMap().get(targetCompID.getValue());
-            //Thread.sleep(1000);
-            channel.write("[" + incoming.remoteAddress() + "] " + msg + "\n");
-            channel.flush();
+            //parentValidator.linkWith(new DestinationValidator(ListOfClients.getInstance().getMarketMap(), ListOfClients.getInstance().getBrokerMap()));//TODO return bool
+            if (ListOfClients.getInstance().getBrokerMap().containsKey(targetValue)) {
+                Channel channel = ListOfClients.getInstance().getBrokerMap().get(targetValue);
+                //Thread.sleep(1000);
+                channel.write("[" + incoming.remoteAddress() + "] " + msg + "\n");
+                channel.flush();
 
             /*
             for (Channel chanel : MarketChannels) {
@@ -116,33 +113,35 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
                     chanel.flush();
                 }
             }*/
+            }
+
         }
 
     }
 
     private void registerBroker(Channel incoming) {
 
-        if (ListOfClients.getInstance().getBrokerMap().containsKey(brokerIndex)) {
+        /*if (ListOfClients.getInstance().getBrokerMap().containsKey(brokerIndex)) {
             getLogger().info("Broker connected with id : {}", brokerIndex);
             return;
-        }
+        }*/
+        brokerIndex++;
         ListOfClients.getInstance().getBrokerMap().put(brokerIndex, incoming);
         getLogger().info("Router assigned Broker with ID = {}", brokerIndex);
-        brokerIndex++;
-        incoming.write("id" + Integer.toString(brokerIndex) + "\n");
+        incoming.write("id" + Integer.toString(brokerIndex) + " tar" + ListOfClients.getInstance().getRandomKeyFromMarketMap() + "\n");
         incoming.flush();
 
     }
 
     private void registerMarket(Channel incoming) {
 
-        if (ListOfClients.getInstance().getMarketMap().containsKey(marketIndex)) {
+        /*if (ListOfClients.getInstance().getMarketMap().containsKey(marketIndex)) {
             getLogger().info("Market connected with id : {}", marketIndex);
             return;
-        }
+        }*/
+        marketIndex++;
         ListOfClients.getInstance().getMarketMap().put(marketIndex, incoming);
         getLogger().info("Router assigned Market with ID = {}", marketIndex);
-        marketIndex++;
         incoming.write("id" + Integer.toString(marketIndex) + "\n");
         incoming.flush();
     }

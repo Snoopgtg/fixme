@@ -14,11 +14,11 @@ import java.util.concurrent.Future;
 public class MarketNio extends RouterClient {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    private SellMessage sellMessage = MessageFactory.createSellMessage("2");
-    private BuyMessage buyMessage = MessageFactory.createBuyMessage("1");
-    String test = "[/127.0.0.1:34060] 8=FIX.4.0␁9=89␁35=D␁49=1␁56=1␁52=20190405-18:24:11.675␁11=ATOMNOCCC4655␁55=MSFT␁54=1␁40=2␁38=3␁44=54.87␁10=107␁";
-    private ExecutedMessage executedMessage = MessageFactory.createExecutedMessage("2", test);
-    private RejectedMessage rejectedMessage = MessageFactory.createRejectedMessage("1");
+//    private SellMessage sellMessage = MessageFactory.createSellMessage("2");
+//    private BuyMessage buyMessage = MessageFactory.createBuyMessage("1");
+//    String test = "[/127.0.0.1:34060] 8=FIX.4.0␁9=89␁35=D␁49=1␁56=1␁52=20190405-18:24:11.675␁11=ATOMNOCCC4655␁55=MSFT␁54=1␁40=2␁38=3␁44=54.87␁10=107␁";
+//    private ExecutedMessage executedMessage = MessageFactory.createExecutedMessage("2", test);
+//    private RejectedMessage rejectedMessage = MessageFactory.createRejectedMessage("1");
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public static void main(String[] args) throws Exception {
         new MarketNio("localhost", 5001).run();

@@ -1,5 +1,9 @@
 package MessageBody;
 
+import nio.ListOfClients;
+
+import java.util.Random;
+
 public class TargetCompID extends MessageParent{
 
     public TargetCompID(Integer value) {
@@ -9,8 +13,12 @@ public class TargetCompID extends MessageParent{
 
     public TargetCompID() {
 
-        super(0, 34);
+        super(0,34);
+
+    }
+
+    @Override
+    public String toString() {
+        return (this.tag.toString() + "=" + String.format("%06d", Integer.parseInt(this.value.toString())) + (char)1).replace((char)1, '\u2401');
     }
 }
-//TODO set fropm market id list
-//TODO imlements from message?

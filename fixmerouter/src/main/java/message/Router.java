@@ -1,7 +1,6 @@
 package message;
 
 //TODO Use the java executor framework for message handling.
-import MessageBody.Symbol;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
@@ -9,9 +8,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import validator.ParentValidator;
 
 import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 public class Router {
 
@@ -25,10 +26,27 @@ public class Router {
 
     public static void main(String[] args) throws InterruptedException {
 
-        String ttt = "[/127.0.0.1:33758] id01";
+        Map<Integer, Integer> map = new HashMap<>();
+        map.put(34,45);
+        map.put(21,20);
+
+        String[] keys = new String[map.size()];
+
+        int index = 0;
+        for (Map.Entry<Integer, Integer> mapEntry : map.entrySet()) {
+            keys[index] = mapEntry.getKey().toString();
+            index++;
+        }
+        Random r = new Random();
+        String k;
+        k = keys[r.nextInt(keys.length)];
+
+        System.out.println(k);
+
+        /*String ttt = "[/127.0.0.1:33758] id01";
 //        String ttt = "[/127.0.0.1:33758] 8=FIX.4.0␁9=89␁35=D␁49=2␁56=0␁52=20190405-18:06:12.468␁11=ATOMNOCCC7623␁55=APPL␁54=2␁40=2␁38=4␁44=85.62␁10=092␁ waiting for masseges";
         String i = ttt.substring(ttt.indexOf("id") + 2);
-        System.out.println("comare - " + i);
+        System.out.println("comare - " + i);*/
 
         /*String ttt = "[/127.0.0.1:33758] 8=FIX.4.0␁9=89␁35=D␁49=2␁56=0␁52=20190405-18:06:12.468␁11=ATOMNOCCC7623␁55=APPL␁54=2␁40=2␁38=4␁44=85.62␁10=092␁ waiting for masseges";
 //        String ttt = "8=FIX.4.2|9=65|35=A|49=SERVER|56=CLIENT|34=177|52=20090107-18:15:16|98=0|108=30|10=062|";

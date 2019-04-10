@@ -19,7 +19,7 @@ public abstract class MessageParent<T> {
 
     public void getAndSetValueFromString(String receivedMessage) {
 
-        String tag = String.valueOf(this.tag);
+        String tag = String.valueOf(this.tag + "=");
         String replaceSOH = receivedMessage.replace('␁', '|');
         replaceSOH = replaceSOH.substring(replaceSOH.indexOf(tag));
         replaceSOH = replaceSOH.substring(0, replaceSOH.indexOf('|'));

@@ -1,8 +1,9 @@
-package message;
+package nio;
 
 import io.netty.channel.Channel;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ListOfClients {
@@ -26,15 +27,20 @@ public class ListOfClients {
         return brokerMap;
     }
 
-    public void setBrokerMap(Map<Integer, Channel> brokerMap) {
-        this.brokerMap = brokerMap;
-    }
-
     public Map<Integer, Channel> getMarketMap() {
         return marketMap;
     }
+    
+    public String getRandomKeyFromMarketMap() {
+        String[] keys = new String[marketMap.size()];
 
-    public void setMarketMap(Map<Integer, Channel> marketMap) {
-        this.marketMap = marketMap;
+        int index = 0;
+        for (Map.Entry<Integer,Channel> mapEntry : marketMap.entrySet()) {
+            keys[index] = mapEntry.getKey().toString();
+            index++;
+        }
+        Random r = new Random();
+        return keys[r.nextInt(keys.length)];
+
     }
 }

@@ -31,31 +31,38 @@ public class MarketNioHandler extends ChannelInboundMessageHandlerAdapter<String
         OrderQty orderQty = new OrderQty();
         Symbol symbol = new Symbol();
         Price price = new Price();
+        TargetCompID targetCompID = new TargetCompID();
        // Thread.currentThread().join();
         price.getAndSetValueFromString(stringFromRouter);
         symbol.getAndSetValueFromString(stringFromRouter);
         orderQty.getAndSetValueFromString(stringFromRouter);
-        if (this.marketData.isPiceAndCalculated(price)) {
+        if (this.marketData.isSumbolAndCalculated(symbol)) {
             if (this.marketData.isOrderQtyAndCalculated(orderQty)) {
-                if (this.marketData.isPiceAndCalculated(price)) {
-                    executedMessage = MessageFactory.createExecutedMessage(marketId, stringFromRouter);
-                    ctx.channel().write(executedMessage + "\n");
+                if (this.marketData.isPriceAndCalculated(price)) {
+                    targetCompID.getAndSetValueFromString(stringFromRouter);
+                    executedMessage = MessageFactory.createExecutedMessage(marketId, Integer.parseInt(targetCompID.getValue().toString()), stringFromRouter);
+                    ctx.channel().write(executedMessage.getMessage() + "\n");
                     ctx.channel().flush();
-                    logger.info(stringFromRouter + ": executed");
+                    logger.info(executedMessage.getMessage() + ": executed");
                 }
                 else {
-                    rejectedMessage = MessageFactory.createRejectedMessage(marketId);
-                    ctx.channel().write(rejectedMessage + "\n");
+                    rejectedMessage = MessageFactory.createRejectedMessage(marketId, Integer.parseInt(targetCompID.getValue().toString()));
+                    ctx.channel().write(rejectedMessage.getMessage() + "\n");
+                    logger.info(rejectedMessage.getMessage() + ": rejected");
                 }
             }
             else {
-                rejectedMessage = MessageFactory.createRejectedMessage(marketId);
-                ctx.channel().write(rejectedMessage + "\n");
+                rejectedMessage = MessageFactory.createRejectedMessage(marketId, Integer.parseInt(targetCompID.getValue().toString()));
+                ctx.channel().write(rejectedMessage.getMessage() + "\n");
+                logger.info(rejectedMessage.getMessage() + ": rejected");
+
             }
         }
         else {
-            rejectedMessage = MessageFactory.createRejectedMessage(marketId);
-            ctx.channel().write(rejectedMessage + "\n");
+            rejectedMessage = MessageFactory.createRejectedMessage(marketId, Integer.parseInt(targetCompID.getValue().toString()));
+            ctx.channel().write(rejectedMessage.getMessage() + "\n");
+            logger.info(rejectedMessage.getMessage() + ": rejected");
+
         }
 
 
