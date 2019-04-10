@@ -11,8 +11,13 @@ import static MessageBody.EnumMessageBody.ClientPort.MARKETPORT;
 
 public class Market {
 
-    public static void main(String[] args) throws Exception {
-        new Market("localhost", MARKETPORT.getPort()).run();
+    public static void main(String[] args) {
+        try {
+            new Market("localhost", MARKETPORT.getPort()).run();
+        } catch (Exception e) {
+            System.out.println("ERROR: You have first start router\n" + e);
+            System.exit(0);
+        }
     }
 
     private final String host;

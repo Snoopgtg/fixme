@@ -36,6 +36,7 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
     public void handlerAdded(ChannelHandlerContext ctx) {
 
         Channel incoming = ctx.channel();
+
         if (RouterNioHandler.checkIncomingClient(ctx)) {
             getLogger().info("Accepted a connection from {} - Market client", incoming.remoteAddress());
             for (Channel channel : MarketChannels) {

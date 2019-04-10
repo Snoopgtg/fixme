@@ -3,6 +3,7 @@ import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import messages.BuyMessage;
 import messages.MessageFactory;
 import messages.SellMessage;
+import nio.ListOfClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,14 +21,12 @@ public class BrokerHandler extends ChannelInboundMessageHandlerAdapter<String> {
     private ChannelHandlerContext ctx;
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-
     @Override
     public void messageReceived(ChannelHandlerContext arg0, String stringFromRouter) throws Exception {
         System.out.println(stringFromRouter);
         this.ctx = arg0;
         this.stringFromRouter = stringFromRouter;
         handler();
-
     }
 
     private void messageCreator() {
