@@ -26,6 +26,5 @@ public class CheckSum extends MessageParent{
         super.setValue(String.format("%03d", sumBytes));
 
     }
-    //TODO check correction work
 }
 

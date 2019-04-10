@@ -1,8 +1,6 @@
 package MessageBody;
 
-import messages.Message;
-
-public class StandardMessageHeader implements Message {
+public class StandardMessageHeader {
     private BeginString beginString; //FIX.4.0
     private BodyLength bodyLength = new BodyLength(); //Valid values: '0' ... '9999'
     private MsgType msgType;

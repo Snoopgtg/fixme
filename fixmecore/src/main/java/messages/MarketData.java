@@ -62,28 +62,4 @@ public class MarketData {
     public MarketData() {
 
     }
-
-    public Symbol getSymbol() {
-        return symbol;
-    }
-
-    public void setSymbol(Symbol symbol) {
-        this.symbol = symbol;
-    }
-
-    public OrderQty getOrderQty() {
-        return orderQty;
-    }
-
-    public void setOrderQty(OrderQty orderQty) {
-        this.orderQty = orderQty;
-    }
-
-    public Price getPrice() {
-        return price;
-    }
-
-    public void setPrice(Price price) {
-        this.price = price;
-    }
 }

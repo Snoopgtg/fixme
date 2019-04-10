@@ -4,19 +4,8 @@ import MessageBody.*;
 
 
 public class MessageFactory {
-    /*public	Message newMessage(*//*TODO fill message*//*) {
 
-        *//*Coordinates coordinates = new Coordinates(longitude, latitude, height);
-
-        switch (type.toLowerCase()) {
-
-            case "jetplane" : return new JetPlane(name, coordinates);
-            case "helicopter" : return new Helicopter(name, coordinates);
-            case "baloon" : return new Baloon(name, coordinates);
-            default : throw new Error(type + " is not valid aircraft");
-        }*//*
-    }*/
-    public static SellMessage createSellMessage(String senderCompID, Integer targetCompID) {//String id - SenderCompID
+    public static SellMessage createSellMessage(String senderCompID, Integer targetCompID) {
 
         StandardMessageHeader standardMessageHeader = new StandardMessageHeader(new BeginString("FIX.4.0"),
                 new MsgType('D'), new SenderCompID(senderCompID), new TargetCompID(targetCompID), new MsgSeqNum(), new SendingTime());

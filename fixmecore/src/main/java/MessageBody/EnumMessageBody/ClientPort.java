@@ -1,4 +1,4 @@
-package message;
+package MessageBody.EnumMessageBody;
 
 public enum ClientPort {
     BROKERPORT(5000),

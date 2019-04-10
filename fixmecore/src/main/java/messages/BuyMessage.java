@@ -28,5 +28,3 @@ public class BuyMessage {
         return standardMessageHeader.toString() + clOrdID.toString() + symbol.toString() + side.toString() + ordType.toString() + orderQty.toString() + price.toString() + checkSum.toString();
     }
 }
-
-//same that sell

@@ -15,9 +15,9 @@ public class BrokerHandler extends ChannelInboundMessageHandlerAdapter<String> {
     private BuyMessage buyMessage;
     private String brokerId;
     private String targetId;
-    //TODO formatting to 6 digits ID
+    private static Integer rejectedCounter = 0;
     private String stringFromRouter;
-    ChannelHandlerContext ctx;
+    private ChannelHandlerContext ctx;
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 
@@ -27,7 +27,7 @@ public class BrokerHandler extends ChannelInboundMessageHandlerAdapter<String> {
         this.ctx = arg0;
         this.stringFromRouter = stringFromRouter;
         handler();
-        messageCreator();
+
     }
 
     private void messageCreator() {
@@ -51,11 +51,30 @@ public class BrokerHandler extends ChannelInboundMessageHandlerAdapter<String> {
     private void handler() {
         if (stringFromRouter.contains("id")) {
             this.brokerId = stringFromRouter.substring(stringFromRouter.indexOf("id") + 2, stringFromRouter.indexOf(" "));
-            logger.info("Broker received id - {} from Router", this.brokerId);
+            logger.info("Broker received id - {} from Router", String.format("%06d", Integer.parseInt(this.brokerId)));
             targetId = stringFromRouter.substring(stringFromRouter.indexOf("tar") + 3);
+            messageCreator();
+        }
+        else if (stringFromRouter.contains("35=3")){
+            logger.warn("rejected incoming " + this.stringFromRouter);
+            rejectedCounter++;
+            isRejectedOver();
         }
         else {
             logger.info("Broker received message: {}", this.stringFromRouter);
+            messageCreator();
         }
+    }
+
+    private void isRejectedOver() {
+
+        if (rejectedCounter == 4) {
+            logger.warn("Broker say GOOD BYE");
+            ctx.close();
+        }
+        else {
+            messageCreator();
+        }
+
     }
 }

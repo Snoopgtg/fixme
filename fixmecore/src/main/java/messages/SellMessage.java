@@ -29,6 +29,3 @@ public class SellMessage {
         return standardMessageHeader.toString() + clOrdID.toString() + symbol.toString() + side.toString() + ordType.toString() + orderQty.toString() + price.toString() + checkSum.toString();
     }
 }
-//same that buy
-
-//8=FIX.4.2 | 9=178 | 35=D | 34=123123 | 49=BROKER11 | 56=PHLX | 52=20071123-05:30:00.000 | 11=ATOMNOCCC9990900 | 55=MSFT | 167=FUT | 54=1 | 38=15 | 40=2 | 44=15 | 59=0 | 10=128 |

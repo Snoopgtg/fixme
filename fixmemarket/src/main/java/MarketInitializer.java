@@ -7,7 +7,7 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
 
-public class MarketNioInitializer extends ChannelInitializer<SocketChannel> {
+public class MarketInitializer extends ChannelInitializer<SocketChannel> {
     @Override
     protected void initChannel(SocketChannel arg0) throws Exception {
         ChannelPipeline pipeline = arg0.pipeline();
@@ -16,6 +16,6 @@ public class MarketNioInitializer extends ChannelInitializer<SocketChannel> {
         pipeline.addLast("decoder", new StringDecoder());
         pipeline.addLast("encoder", new StringEncoder());
 
-        pipeline.addLast("handler", new MarketNioHandler());
+        pipeline.addLast("handler", new MarketHandler());
     }
 }

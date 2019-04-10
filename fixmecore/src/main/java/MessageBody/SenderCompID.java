@@ -17,4 +17,3 @@ public class SenderCompID extends MessageParent{
     }
 }
 
-//TODO imlements from message?

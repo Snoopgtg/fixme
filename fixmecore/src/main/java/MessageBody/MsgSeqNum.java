@@ -10,4 +10,3 @@ public class MsgSeqNum extends MessageParent {
     }
 }
 
-//TODO imlements from message?

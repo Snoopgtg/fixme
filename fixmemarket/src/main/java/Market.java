@@ -1,96 +1,56 @@
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioSocketChannel;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.channels.CompletionHandler;
-import java.nio.charset.Charset;
-import java.util.concurrent.Future;
-//from   w w  w  . j av a 2 s  .  c om
+
+import static MessageBody.EnumMessageBody.ClientPort.MARKETPORT;
+
 public class Market {
 
-    private static final Logger logger = LoggerFactory.getLogger(Market.class.getSimpleName());
-
-    public static Logger getLogger() {
-        return logger;
-    }
-
     public static void main(String[] args) throws Exception {
-        AsynchronousSocketChannel channel = AsynchronousSocketChannel.open();
-        SocketAddress serverAddr = new InetSocketAddress("localhost", 5001);
-        Future<Void> result = channel.connect(serverAddr);
-        result.get();
-        logger.info("Connected");
-//        System.out.println("Connected");
-        AttachmentMarket attach = new AttachmentMarket();
-        attach.channel = channel;
-        attach.buffer = ByteBuffer.allocate(2048);
-        attach.isRead = false;
-        attach.mainThread = Thread.currentThread();
-
-        Charset cs = Charset.forName("UTF-8");
-        String msg = "Hello";
-        byte[] data = msg.getBytes(cs);
-        attach.buffer.put(data);
-        attach.buffer.flip();
-
-        ReadWriteHandlerMarket readWriteHandler = new ReadWriteHandlerMarket();
-        channel.write(attach.buffer, attach, readWriteHandler);
-        attach.mainThread.join();
+        new Market("localhost", MARKETPORT.getPort()).run();
     }
-}
-class AttachmentMarket {
-    AsynchronousSocketChannel channel;
-    ByteBuffer buffer;
-    Thread mainThread;
-    boolean isRead;
-}
-class ReadWriteHandlerMarket implements CompletionHandler<Integer, AttachmentMarket> {
-    @Override
-    public void completed(Integer result, AttachmentMarket attach) {
-        if (attach.isRead) {
-            attach.buffer.flip();
-            Charset cs = Charset.forName("UTF-8");
-            int limits = attach.buffer.limit();
-            byte bytes[] = new byte[limits];
-            attach.buffer.get(bytes, 0, limits);
-            String msg = new String(bytes, cs);
-            Market.getLogger().info("Server Responded: "+ msg);
-//            System.out.format("Server Responded: "+ msg);
-            try {
-                msg = this.getTextFromUser();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (msg.equalsIgnoreCase("bye")) {
-                attach.mainThread.interrupt();
-                return;
-            }
-            attach.buffer.clear();
-            byte[] data = msg.getBytes(cs);
-            attach.buffer.put(data);
-            attach.buffer.flip();
-            attach.isRead = false; // It is a write
-            attach.channel.write(attach.buffer, attach, this);
-        }else {
-            attach.isRead = true;
-            attach.buffer.clear();
-            attach.channel.read(attach.buffer, attach, this);
+
+    private final String host;
+    private final int port;
+
+    public Market(String host, int port) {
+
+        this.host = host;
+        this.port = port;
+    }
+
+    public void run() throws Exception {
+        EventLoopGroup group = new NioEventLoopGroup();
+
+        try {
+            Bootstrap bootstrap = new Bootstrap()
+                    .group(group)
+                    .channel(NioSocketChannel.class)
+                    .handler(new MarketInitializer());
+
+            ChannelFuture futureMarket = bootstrap.connect(host, port);
+//            Channel channel = bootstrap.connect(host, port).sync().channel();
+            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+//            channel.write(sellMessage.getMessage() + " waiting for masseges \r\n");
+//            channel.flush();
+            futureMarket.sync().channel().closeFuture().sync();
+
+           /* while (true) {
+                //channel.write(in.readLine() + " waiting for masseges \r\n");
+                *//*channel.write(sellMessage.getMessage() + "\r\n");
+                channel.write(buyMessage.getMessage() + "\r\n");
+                channel.write(executedMessage.getMessage() + "\r\n");
+                channel.write(rejectedMessage.getMessage() + "\r\n");
+                channel.flush();*//*
+            }*/
         }
-    }
-    @Override
-    public void failed(Throwable e, AttachmentMarket attach) {
-        e.printStackTrace();
-    }
-    private String getTextFromUser() throws Exception{
-        System.out.print("Please enter a  message  (Bye  to quit):");
-        BufferedReader consoleReader = new BufferedReader(
-                new InputStreamReader(System.in));
-        String msg = consoleReader.readLine();
-        return msg;
+        finally {
+            group.shutdownGracefully();
+        }
     }
 }

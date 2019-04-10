@@ -34,4 +34,3 @@ public abstract class MessageParent<T> {
         return (this.tag.toString() + "=" + this.value.toString() + (char)1).replace((char)1, '\u2401');
     }
 }
-//TODO counter for message method

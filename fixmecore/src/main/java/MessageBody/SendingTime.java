@@ -5,7 +5,7 @@ import java.util.Date;
 
 public class SendingTime extends MessageParent{
 
-    public SendingTime() { //TODO TimeStamp type
+    public SendingTime() {
 
         super(52);
         String timeStamp = new SimpleDateFormat("yyyyMMdd-HH:mm:ss.SSS").format(new Date());
@@ -13,4 +13,3 @@ public class SendingTime extends MessageParent{
     }
 }
 
-//TODO imlements from message?

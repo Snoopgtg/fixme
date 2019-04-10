@@ -1,6 +1,7 @@
 package message;
 
 
+import MessageBody.EnumMessageBody.ClientPort;
 import MessageBody.TargetCompID;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -33,13 +34,13 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
-        System.out.println("");
+
         Channel incoming = ctx.channel();
-        getLogger().info("Accepted a connection from {}", incoming.remoteAddress());
         if (RouterNioHandler.checkIncomingClient(ctx)) {
+            getLogger().info("Accepted a connection from {} - Market client", incoming.remoteAddress());
             for (Channel channel : MarketChannels) {
-//                channel.write("Broker - " + incoming.remoteAddress() + " has joined!\n");
-//                channel.flush();
+                channel.write("New Broker - has joined!\n");
+                channel.flush();
             }
             BrokerChannels.add(ctx.channel());
             registerBroker(incoming);
@@ -47,9 +48,10 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
 
         }
         else {
+            getLogger().info("Accepted a connection from {} - Broker client", incoming.remoteAddress());
             for (Channel channel : BrokerChannels) {
-//                channel.write("Market - " + incoming.remoteAddress() + " has joined!\n");
-//                channel.flush();
+                channel.write("New Market - has joined!\n");
+                channel.flush();
             }
             MarketChannels.add(ctx.channel());
             registerMarket(incoming);
@@ -66,31 +68,22 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
         }
         BrokerChannels.remove(ctx.channel());
     }
+    //TODO same for Markets
 
     @Override
-    public void messageReceived(ChannelHandlerContext arg0, String msg) throws InterruptedException {
+    public void messageReceived(ChannelHandlerContext arg0, String msg) {
 
         TargetCompID targetCompID = new TargetCompID();
         this.parentValidator = new CheckSumValidate(msg);
-        //Thread.currentThread().join();
         targetCompID.getAndSetValueFromString(msg);
         Integer targetValue = Integer.parseInt(targetCompID.getValue().toString());
-        Channel incoming = arg0.channel();
-        logger.info("Received message {}", msg);
         if (RouterNioHandler.checkIncomingClient(arg0)) {
+            logger.info("received message from Broker {}", msg);
             parentValidator.linkWith(new DestinationValidator(ListOfClients.getInstance().getBrokerMap(), ListOfClients.getInstance().getMarketMap()));
-//            Object find = targetCompID.getValue().;
             if (ListOfClients.getInstance().getMarketMap().containsKey(targetValue)) {
-
                 Channel channel = ListOfClients.getInstance().getMarketMap().get(targetValue);
-                channel.write("[" + incoming.remoteAddress() + "] " + msg + "\n");
+                channel.write(msg + "\n");
                 channel.flush();
-            /*for (Channel chanel : BrokerChannels) {
-                if (chanel != incoming) {
-                    chanel.write("[" + incoming.remoteAddress() + "] " + msg + "\n");
-                    chanel.flush();
-                }
-            }*/
             }
             else { //TODO delete this else and correct validate in parentValidator.linkWith(new DestinationValidator(brokerMap, marketMap));
 
@@ -99,20 +92,11 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
 
         }
         else {
-            //parentValidator.linkWith(new DestinationValidator(ListOfClients.getInstance().getMarketMap(), ListOfClients.getInstance().getBrokerMap()));//TODO return bool
+            logger.info("received message from Market {}", msg);
             if (ListOfClients.getInstance().getBrokerMap().containsKey(targetValue)) {
                 Channel channel = ListOfClients.getInstance().getBrokerMap().get(targetValue);
-                //Thread.sleep(1000);
-                channel.write("[" + incoming.remoteAddress() + "] " + msg + "\n");
+                channel.write(msg + "\n");
                 channel.flush();
-
-            /*
-            for (Channel chanel : MarketChannels) {
-                if (chanel != incoming) {
-                    chanel.write("[" + incoming.remoteAddress() + "] " + msg + "\n");
-                    chanel.flush();
-                }
-            }*/
             }
 
         }
@@ -127,7 +111,7 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
         }*/
         brokerIndex++;
         ListOfClients.getInstance().getBrokerMap().put(brokerIndex, incoming);
-        getLogger().info("Router assigned Broker with ID = {}", brokerIndex);
+        getLogger().info("Router assigned Broker with ID = {}", String.format("%06d", brokerIndex));
         incoming.write("id" + Integer.toString(brokerIndex) + " tar" + ListOfClients.getInstance().getRandomKeyFromMarketMap() + "\n");
         incoming.flush();
 
@@ -141,7 +125,7 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
         }*/
         marketIndex++;
         ListOfClients.getInstance().getMarketMap().put(marketIndex, incoming);
-        getLogger().info("Router assigned Market with ID = {}", marketIndex);
+        getLogger().info("Router assigned Market with ID = {}", String.format("%06d", marketIndex));
         incoming.write("id" + Integer.toString(marketIndex) + "\n");
         incoming.flush();
     }
