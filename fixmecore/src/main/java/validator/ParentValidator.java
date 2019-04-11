@@ -10,12 +10,12 @@ public abstract class ParentValidator {
         return next;
     }
 
-    public abstract boolean check(String recievdMessage);
+    public abstract boolean check(String receivedMessage);
 
-    protected boolean checkNext(String recievdMessage) {
+    protected boolean checkNext(String receivedMessage) {
         if (next == null) {
             return true;
         }
-        return next.check(recievdMessage);
+        return next.check(receivedMessage);
     }
 }

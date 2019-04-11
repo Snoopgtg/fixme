@@ -27,6 +27,7 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
     private static int brokerIndex;
     private static int marketIndex;
     private ParentValidator parentValidator;
+    private static int stopWork = 0;
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final ChannelGroup BrokerChannels = new DefaultChannelGroup("brokers");
@@ -52,7 +53,6 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
                 registerBroker(incoming);
                 getLogger().info("add Broker to broker group");
             }
-
 
         }
         else {
@@ -88,7 +88,6 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
 
 
     }
-    //TODO same for Markets
 
     @Override
     public void messageReceived(ChannelHandlerContext arg0, String msg) {
@@ -122,7 +121,16 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
             }
 
         }
+        isStopWork();
+    }
 
+    private void isStopWork() {
+        if (stopWork == 100) {
+            RouterStopper.getInstance().stop();
+        }
+        else {
+            stopWork++;
+        }
     }
 
     private void registerBroker(Channel incoming) {

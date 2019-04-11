@@ -60,7 +60,7 @@ public class BrokerHandler extends ChannelInboundMessageHandlerAdapter<String> {
         }
         else if (stringFromRouter.contains("market")) {
             logger.info("Broker received message: {}", this.stringFromRouter);
-            logger.error("You have first start market");
+            logger.error("You have to start market client");
             System.exit(0);
         }
         else if (stringFromRouter.contains("doesn't exist")) {

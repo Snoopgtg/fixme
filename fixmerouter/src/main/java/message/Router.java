@@ -28,7 +28,6 @@ public class Router {
         new Router(BROKERPORT.getPort(), MARKETPORT.getPort()).run();
     }
 
-
     public Router(int portForBroker, int portForMarket) {
         this.portForBroker = portForBroker;
         this.portForMarket = portForMarket;
@@ -39,22 +38,24 @@ public class Router {
         EventLoopGroup bossGroup = new NioEventLoopGroup(2);
         EventLoopGroup workerGroup = new NioEventLoopGroup(10);
 
+        RouterStopper.getInstance().setBossGroup(bossGroup);
+        RouterStopper.getInstance().setWorkerGroup(workerGroup);
         try {
             ServerBootstrap bootstrap = new ServerBootstrap()
                     .group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new RouterNioInitializer());
-            ChannelFuture futureBrocker = bootstrap.bind(portForBroker);
+            ChannelFuture futureBroker = bootstrap.bind(portForBroker);
             logger.info("- Broker side started. Accepting connections. Listening at {}", portForBroker);
             ChannelFuture futureMarket = bootstrap.bind(portForMarket);
             logger.info("- Market side started. Accepting connections. Listening at {}", portForMarket);
-            futureBrocker.sync().channel().closeFuture().sync();
+
+            futureBroker.sync().channel().closeFuture().sync();
             futureMarket.sync().channel().closeFuture().sync();
         }
         finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
-
     }
 }
