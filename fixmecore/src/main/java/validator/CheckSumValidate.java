@@ -9,11 +9,9 @@ import java.lang.invoke.MethodHandles;
 public class CheckSumValidate extends ParentValidator {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private String receivedMessage;
     private CheckSum checkSum;
 
-    public CheckSumValidate(String receivedMessage) {
-        this.receivedMessage = receivedMessage;
+    public CheckSumValidate() {
         this.checkSum = new CheckSum();
     }
 

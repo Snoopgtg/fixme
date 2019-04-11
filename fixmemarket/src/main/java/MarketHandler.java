@@ -9,8 +9,6 @@ import java.lang.invoke.MethodHandles;
 
 public class MarketHandler extends ChannelInboundMessageHandlerAdapter<String> {
 
-    private RejectedMessage rejectedMessage;
-    private ExecutedMessage executedMessage;
     private String marketId;
     private String stringFromRouter;
     private ChannelHandlerContext ctx;
@@ -19,7 +17,7 @@ public class MarketHandler extends ChannelInboundMessageHandlerAdapter<String> {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, String stringFromRouter) throws Exception {
+    public void messageReceived(ChannelHandlerContext ctx, String stringFromRouter) {
         this.stringFromRouter = stringFromRouter;
         this.ctx = ctx;
         handler();
@@ -39,13 +37,13 @@ public class MarketHandler extends ChannelInboundMessageHandlerAdapter<String> {
         Integer targetValue = Integer.parseInt(senderCompID.getValue().toString());
         if (this.marketData.isSumbolAndCalculated(symbol) && this.marketData.isOrderQtyAndCalculated(orderQty) &&
                 this.marketData.isPriceAndCalculated(price)) {
-            executedMessage = MessageFactory.createExecutedMessage(marketId, targetValue, stringFromRouter);
+            ExecutedMessage executedMessage = MessageFactory.createExecutedMessage(marketId, targetValue, stringFromRouter);
             ctx.channel().write(executedMessage.getMessage() + "\n");
             ctx.channel().flush();
             logger.info(executedMessage.getMessage() + ": executed send");
         }
         else {
-            rejectedMessage = MessageFactory.createRejectedMessage(marketId, targetValue);
+            RejectedMessage rejectedMessage = MessageFactory.createRejectedMessage(marketId, targetValue);
             ctx.channel().write(rejectedMessage.getMessage() + "\n");
             logger.info(rejectedMessage.getMessage() + ": rejected send");
             stopWorking();
@@ -77,5 +75,3 @@ public class MarketHandler extends ChannelInboundMessageHandlerAdapter<String> {
         }
     }
 }
-
-//TODO stop market, after stop broker

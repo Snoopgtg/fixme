@@ -10,7 +10,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class DestinationValidator extends ParentValidator {
+public class  DestinationValidator extends ParentValidator {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private Map<Integer, Channel> mapOfTargets;
@@ -30,20 +30,20 @@ public class DestinationValidator extends ParentValidator {
     @Override
     public boolean check(String receivedMessage) {
 
-        //буде проблема з айді, мабуть там будуть ще літери
         senderCompID.getAndSetValueFromString(receivedMessage);
-        Integer sender = (Integer) senderCompID.getValue();
+        Integer sender = Integer.parseInt(senderCompID.getValue().toString());
         if (!mapOfSenders.containsKey(sender)) {
-            logger.error("{} - this is destination doesn't exist\n", sender);
+            logger.error("{} - this is sender doesn't exist", String.format("%06d", sender));
             return false;
         }
         targetCompID.getAndSetValueFromString(receivedMessage);
-        Integer target = (Integer) targetCompID.getValue();
+        Integer target = Integer.parseInt(targetCompID.getValue().toString());
         if (!mapOfTargets.containsKey(target)) {
-            logger.error("{} - this is sender doesn't exist\n", sender);
+            logger.error("{} - this is destination doesn't exist", String.format("%06d", target));
             return false;
         }
-        logger.info("senderCompID - {} and targetCompID - {} are accepted\n", sender, target);
+        logger.info("senderCompID - {} and targetCompID - {} are accepted", String.format("%06d", sender),
+                String.format("%06d", target));
         return true;
     }
 }

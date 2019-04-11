@@ -20,10 +20,6 @@ import java.net.InetSocketAddress;
 
 public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String> {
 
-    private static Logger getLogger() {
-        return logger;
-    }
-
     private static int brokerIndex;
     private static int marketIndex;
     private ParentValidator parentValidator;
@@ -93,21 +89,30 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
     public void messageReceived(ChannelHandlerContext arg0, String msg) {
 
         TargetCompID targetCompID = new TargetCompID();
-        this.parentValidator = new CheckSumValidate(msg);
+
+
+        this.parentValidator = new CheckSumValidate();
+        ParentValidator destinationValidator = new DestinationValidator(
+                ListOfClients.getInstance().getBrokerMap(),
+                ListOfClients.getInstance().getMarketMap()
+        );
+        parentValidator.linkWith(destinationValidator);
+
+
         targetCompID.getAndSetValueFromString(msg);
         Integer targetValue = Integer.parseInt(targetCompID.getValue().toString());
         if (RouterNioHandler.checkIncomingClient(arg0)) {
             logger.info("received message from Broker {}", msg);
-            parentValidator.linkWith(new DestinationValidator(ListOfClients.getInstance().getBrokerMap(), ListOfClients.getInstance().getMarketMap()));
-            if (ListOfClients.getInstance().getMarketMap().containsKey(targetValue)) {
+            boolean checkResult = parentValidator.check(msg);
+
+            if (ListOfClients.getInstance().getMarketMap().containsKey(targetValue) && checkResult) {
                 Channel channel = ListOfClients.getInstance().getMarketMap().get(targetValue);
                 channel.write(msg + "\n");
                 channel.flush();
             }
-            else { //TODO delete this else and correct validate in parentValidator.linkWith(new DestinationValidator(brokerMap, marketMap));
+            else {
 
                 arg0.channel().write("{} ID doesn't exist" + targetCompID.getValue() + "\n");
-                logger.warn("Market with ID : {} doesn't exist", targetCompID.getValue());
                 arg0.close();
             }
 
@@ -135,10 +140,6 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
 
     private void registerBroker(Channel incoming) {
 
-        /*if (ListOfClients.getInstance().getBrokerMap().containsKey(brokerIndex)) {
-            getLogger().info("Broker connected with id : {}", brokerIndex);
-            return;
-        }*/
         brokerIndex++;
         ListOfClients.getInstance().getBrokerMap().put(brokerIndex, incoming);
         getLogger().info("Router assigned Broker with ID = {}", String.format("%06d", brokerIndex));
@@ -149,10 +150,6 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
 
     private void registerMarket(Channel incoming) {
 
-        /*if (ListOfClients.getInstance().getMarketMap().containsKey(marketIndex)) {
-            getLogger().info("Market connected with id : {}", marketIndex);
-            return;
-        }*/
         marketIndex++;
         ListOfClients.getInstance().getMarketMap().put(marketIndex, incoming);
         getLogger().info("Router assigned Market with ID = {}", String.format("%06d", marketIndex));
@@ -165,5 +162,9 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
         Channel incoming = ctx.channel();
         InetSocketAddress incomingPort = (InetSocketAddress) incoming.localAddress();
         return incomingPort.getPort() == ClientPort.BROKERPORT.getPort();
+    }
+
+    private static Logger getLogger() {
+        return logger;
     }
 }
