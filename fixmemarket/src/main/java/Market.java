@@ -39,20 +39,7 @@ public class Market {
                     .handler(new MarketInitializer());
 
             ChannelFuture futureMarket = bootstrap.connect(host, port);
-//            Channel channel = bootstrap.connect(host, port).sync().channel();
-            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-//            channel.write(sellMessage.getMessage() + " waiting for masseges \r\n");
-//            channel.flush();
             futureMarket.sync().channel().closeFuture().sync();
-
-           /* while (true) {
-                //channel.write(in.readLine() + " waiting for masseges \r\n");
-                *//*channel.write(sellMessage.getMessage() + "\r\n");
-                channel.write(buyMessage.getMessage() + "\r\n");
-                channel.write(executedMessage.getMessage() + "\r\n");
-                channel.write(rejectedMessage.getMessage() + "\r\n");
-                channel.flush();*//*
-            }*/
         }
         finally {
             group.shutdownGracefully();

@@ -15,6 +15,7 @@ public class MarketHandler extends ChannelInboundMessageHandlerAdapter<String> {
     private String stringFromRouter;
     private ChannelHandlerContext ctx;
     private MarketData marketData;
+    private static int rejectedCounter = 0;
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Override
@@ -36,35 +37,29 @@ public class MarketHandler extends ChannelInboundMessageHandlerAdapter<String> {
         orderQty.getAndSetValueFromString(stringFromRouter);
         senderCompID.getAndSetValueFromString(stringFromRouter);
         Integer targetValue = Integer.parseInt(senderCompID.getValue().toString());
-        if (this.marketData.isSumbolAndCalculated(symbol)) {
-            if (this.marketData.isOrderQtyAndCalculated(orderQty)) {
-                if (this.marketData.isPriceAndCalculated(price)) {
-                    executedMessage = MessageFactory.createExecutedMessage(marketId, targetValue, stringFromRouter);
-                    ctx.channel().write(executedMessage.getMessage() + "\n");
-                    ctx.channel().flush();
-                    logger.info(executedMessage.getMessage() + ": executed send");
-                }
-                else {
-                    rejectedMessage = MessageFactory.createRejectedMessage(marketId, targetValue);
-                    ctx.channel().write(rejectedMessage.getMessage() + "\n");
-                    logger.info(rejectedMessage.getMessage() + ": rejected send");
-                }
-            }
-            else {
-                rejectedMessage = MessageFactory.createRejectedMessage(marketId, targetValue);
-                ctx.channel().write(rejectedMessage.getMessage() + "\n");
-                logger.info(rejectedMessage.getMessage() + ": rejected send");
-
-            }
+        if (this.marketData.isSumbolAndCalculated(symbol) && this.marketData.isOrderQtyAndCalculated(orderQty) &&
+                this.marketData.isPriceAndCalculated(price)) {
+            executedMessage = MessageFactory.createExecutedMessage(marketId, targetValue, stringFromRouter);
+            ctx.channel().write(executedMessage.getMessage() + "\n");
+            ctx.channel().flush();
+            logger.info(executedMessage.getMessage() + ": executed send");
         }
         else {
             rejectedMessage = MessageFactory.createRejectedMessage(marketId, targetValue);
             ctx.channel().write(rejectedMessage.getMessage() + "\n");
             logger.info(rejectedMessage.getMessage() + ": rejected send");
-
+            stopWorking();
         }
+    }
 
-
+    private void stopWorking() {
+        if (rejectedCounter == 50){
+            logger.warn("Market say GOOD BYE");
+            ctx.close();
+        }
+        else{
+            rejectedCounter++;
+        }
     }
 
     private void handler() {
@@ -82,3 +77,5 @@ public class MarketHandler extends ChannelInboundMessageHandlerAdapter<String> {
         }
     }
 }
+
+//TODO stop market, after stop broker

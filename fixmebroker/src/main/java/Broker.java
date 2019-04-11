@@ -12,10 +12,6 @@ public class Broker {
     public static void main(String[] args) {
 
         try {
-            if (ListOfClients.getInstance().getMarketMap().isEmpty()) {
-                System.out.println("ERROR: You have first start market");
-                System.exit(0);
-            }
             new Broker("localhost", BROKERPORT.getPort()).run();
         } catch (Exception e) {
             System.out.println("ERROR: You have first start router and market\n" + e);

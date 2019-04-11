@@ -38,18 +38,25 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
         Channel incoming = ctx.channel();
 
         if (RouterNioHandler.checkIncomingClient(ctx)) {
-            getLogger().info("Accepted a connection from {} - Market client", incoming.remoteAddress());
-            for (Channel channel : MarketChannels) {
-                channel.write("New Broker - has joined!\n");
-                channel.flush();
+            if (ListOfClients.getInstance().getMarketMap().isEmpty()) {
+                incoming.write("market does not exist\n");
+                incoming.flush();
             }
-            BrokerChannels.add(ctx.channel());
-            registerBroker(incoming);
-            getLogger().info("add Broker to broker group");
+            else {
+                getLogger().info("Accepted a connection from {} - Broker client", incoming.remoteAddress());
+                for (Channel channel : MarketChannels) {
+                    channel.write("New Broker - has joined!\n");
+                    channel.flush();
+                }
+                BrokerChannels.add(ctx.channel());
+                registerBroker(incoming);
+                getLogger().info("add Broker to broker group");
+            }
+
 
         }
         else {
-            getLogger().info("Accepted a connection from {} - Broker client", incoming.remoteAddress());
+            getLogger().info("Accepted a connection from {} - Market client", incoming.remoteAddress());
             for (Channel channel : BrokerChannels) {
                 channel.write("New Market - has joined!\n");
                 channel.flush();
@@ -64,10 +71,22 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) {
         Channel incoming = ctx.channel();
-        for (Channel channel : BrokerChannels) {
-            channel.write("Server - " + incoming.remoteAddress() + " has disconnected!\n");
+        if (RouterNioHandler.checkIncomingClient(ctx)) {
+            for (Channel channel : MarketChannels) {
+                channel.write("Server - Broker : " + incoming.remoteAddress() + " has disconnected!\n");
+            }
+            ListOfClients.getInstance().getBrokerMap().values().removeIf(v -> v.equals(incoming));
+            BrokerChannels.remove(ctx.channel());
         }
-        BrokerChannels.remove(ctx.channel());
+        else {
+            for (Channel channel : BrokerChannels) {
+                channel.write("Server - Market : " + incoming.remoteAddress() + " has disconnected!\n");
+            }
+            ListOfClients.getInstance().getMarketMap().values().removeIf(v -> v.equals(incoming));
+            MarketChannels.remove(ctx.channel());
+        }
+
+
     }
     //TODO same for Markets
 
@@ -88,7 +107,9 @@ public class RouterNioHandler extends ChannelInboundMessageHandlerAdapter<String
             }
             else { //TODO delete this else and correct validate in parentValidator.linkWith(new DestinationValidator(brokerMap, marketMap));
 
+                arg0.channel().write("{} ID doesn't exist" + targetCompID.getValue() + "\n");
                 logger.warn("Market with ID : {} doesn't exist", targetCompID.getValue());
+                arg0.close();
             }
 
         }

@@ -23,7 +23,6 @@ public class BrokerHandler extends ChannelInboundMessageHandlerAdapter<String> {
 
     @Override
     public void messageReceived(ChannelHandlerContext arg0, String stringFromRouter) throws Exception {
-        System.out.println(stringFromRouter);
         this.ctx = arg0;
         this.stringFromRouter = stringFromRouter;
         handler();
@@ -59,10 +58,19 @@ public class BrokerHandler extends ChannelInboundMessageHandlerAdapter<String> {
             rejectedCounter++;
             isRejectedOver();
         }
+        else if (stringFromRouter.contains("market")) {
+            logger.info("Broker received message: {}", this.stringFromRouter);
+            logger.error("You have first start market");
+            System.exit(0);
+        }
+        else if (stringFromRouter.contains("doesn't exist")) {
+            logger.error("Broker say GOOD BYE, because market doesn't exist");
+        }
         else {
             logger.info("Broker received message: {}", this.stringFromRouter);
             messageCreator();
         }
+
     }
 
     private void isRejectedOver() {
