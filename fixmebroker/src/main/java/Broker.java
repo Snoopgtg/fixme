@@ -3,13 +3,14 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.apache.log4j.BasicConfigurator;
 
 import static MessageBody.EnumMessageBody.ClientPort.BROKERPORT;
 
 public class Broker {
 
     public static void main(String[] args) {
-
+        BasicConfigurator.configure();
         try {
             new Broker("localhost", BROKERPORT.getPort()).run();
         } catch (Exception e) {

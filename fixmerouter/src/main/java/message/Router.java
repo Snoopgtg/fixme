@@ -5,6 +5,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.apache.log4j.BasicConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ public class Router {
     private final int portForMarket;
 
     public static void main(String[] args) throws InterruptedException {
-
+        BasicConfigurator.configure();
         new Router(BROKERPORT.getPort(), MARKETPORT.getPort()).run();
     }
 
